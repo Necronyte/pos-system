@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node -e \"const ts = require\\('typescript'\\); console.log\\('TypeScript version:', ts.version\\);\")",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(npm run:*)",
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(awk 'NR==2240,NR==2260 || NR==2315,NR==2340 || NR==2570,NR==2595 || NR==3001,NR==3025 || NR==3240,NR==3260' \"D:\\\\Masaüstü\\\\POS System Claude\\\\style.css\")",
+      "Bash(node -e ':*)",
+      "Bash(node -e \"const e = require\\('./node_modules/electron/package.json'\\); console.log\\(e.version\\)\")",
+      "Bash(grep -n \"opacity\\\\|hover\\\\|settings\\\\|more\\\\|masa.*kart\\\\|table.*card\\\\|\\\\.\\\\.\\\\.\\\\\\\\|meatball\\\\|kebab\\\\|masa-btn\\\\|tbl-\" \"D:/Masaüstü/POS System Claude/style.css\")",
+      "Bash(node -e \"const v=require\\('D:/Masaüstü/POS System Claude/node_modules/electron/package.json'\\);console.log\\('electron:',v.version\\)\")",
+      "Bash(node:*)",
+      "Bash(echo \"Exit: $?\")"
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "name": "coffee-shop-pos",
+  "version": "1.0.0",
+  "description": "Coffee Shop POS — Masaüstü Kasiyer Terminali",
+  "main": "main.js",
+  "author": "Coffee Shop POS",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "start": "npm run compile && electron .",
+    "dev": "npm run compile && set NODE_ENV=development&& electron .",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "postinstall": "electron-rebuild -f -w better-sqlite3",
+    "build:win": "electron-builder --win portable",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.5.2",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "typescript": "^6.0.2"
+  },
+  "build": {
+    "appId": "com.coffeeshop.pos",
+    "productName": "Coffee Shop POS",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "database.js",
+      "index.html",
+      "style.css",
+      "script.js",
+      "assets/**",
+      "node_modules/**"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Portable-${version}.${ext}",
+      "signingHashAlgorithms": null,
+      "sign": null
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Coffee Shop POS",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.business",
+      "identity": null
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Office"
+    }
+  }
+}

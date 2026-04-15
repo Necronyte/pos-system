@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kahve POS — Kasiyer Terminali</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ÖZEL BAŞLIK ÇUBUĞU -->
+  <div class="title-bar" id="titleBar">
+    <div class="title-bar-drag">
+      <svg class="title-bar-icon" width="14" height="14" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 18 Q10 10 14 12 Q18 14 20 10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span class="title-bar-title">Coffee Shop POS</span>
+    </div>
+    <div class="title-bar-controls">
+      <button class="title-bar-btn" id="titleBarMinBtn" title="Küçült">
+        <svg width="10" height="1" viewBox="0 0 10 1" fill="none"><line x1="0" y1="0.5" x2="10" y2="0.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="title-bar-btn" id="titleBarMaxBtn" title="Büyüt/Küçült">
+        <span id="titleBarMaxIcon">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="0.6" y="0.6" width="8.8" height="8.8" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+        </span>
+      </button>
+      <button class="title-bar-btn title-bar-btn--close" id="titleBarCloseBtn" title="Kapat">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="0.7" y1="0.7" x2="9.3" y2="9.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9.3" y1="0.7" x2="0.7" y2="9.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ÜST BAR -->
+  <header class="topbar" id="posTopbar" style="display:none">
+    <div class="topbar-left">
+      <button class="back-to-tables-btn" id="backToTablesBtnLeft" title="Masalara dön">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Geri Dön</span>
+      </button>
+    </div>
+    <div class="topbar-center">
+      <nav class="category-nav" id="categoryNav">
+        <button class="cat-btn active" data-cat="all">Tümü</button>
+        <button class="cat-btn" data-cat="hot">Sıcak İçecekler</button>
+        <button class="cat-btn" data-cat="cold">Soğuk İçecekler</button>
+        <button class="cat-btn" data-cat="special">Özel İçecekler</button>
+        <button class="cat-btn" data-cat="dessert">🍰 Tatlılar</button>
+        <button class="cat-btn" data-cat="addon">➕ Ekstralar</button>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="time-display" id="timeDisplay"></div>
+      <div class="topbar-actions">
+<button class="theme-toggle-btn" id="themeToggleBtn" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIcon">🌙</span>
+            </span>
+          </div>
+        </button>
+        <button class="history-toggle-btn" id="historyToggleBtn" title="Satış Geçmişi">
+          <svg width="15" height="15" viewBox="0 0 17 17" fill="none">
+            <rect x="2" y="2" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M5 6h7M5 8.5h7M5 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span>Geçmiş</span>
+        </button>
+        <button class="logout-btn" id="logoutBtn" title="Çıkış Yap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Çıkış</span>
+        </button>
+        <div class="active-user-chip" id="activeUserChip"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- AKTİF MASA BAŞLIĞİ -->
+  <div class="table-context-bar" id="tableContextBar" style="display:none">
+    <span class="table-context-icon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M8 8V6a4 4 0 018 0v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span class="table-context-text" id="tableContextText"></span>
+  </div>
+
+  <!-- ANA DÜZEN -->
+  <main class="pos-layout" id="posLayout" style="display:none">
+
+    <!-- SOL: ÜRÜN IZGARASI -->
+    <section class="products-panel">
+      <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- SAĞ: SİPARİŞ PANELİ -->
+    <aside class="order-panel">
+      <div class="order-header">
+        <h2 class="order-title" id="orderTableTitle">Sipariş</h2>
+        <button class="clear-btn" id="clearBtn" title="Sepeti temizle">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="order-items" id="orderItems">
+        <div class="empty-state" id="emptyState">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+            <path d="M14 30 Q17 18 24 22 Q31 26 34 18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>
+          </svg>
+          <p>Henüz ürün yok</p>
+          <span>Eklemek için bir ürüne dokunun</span>
+        </div>
+      </div>
+
+      <!-- EKSTRALAR -->
+      <div class="extras-section" id="extrasSection">
+        <button class="extras-toggle-btn" id="extrasToggleBtn" title="Ekstraları göster/gizle">
+          <span class="extras-toggle-label">Ekstralar</span>
+          <svg class="extras-toggle-icon" id="extrasToggleIcon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2.5 5l4.5 4.5L11.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="extras-body" id="extrasBody">
+          <div class="extras-grid" id="extrasGrid"></div>
+        </div>
+      </div>
+
+      <!-- SİPARİŞ TOPLAMI -->
+      <div class="order-footer">
+        <div class="subtotal-row">
+          <span>Ara Toplam</span>
+          <span id="subtotalDisplay">₺0</span>
+        </div>
+        <div class="tax-row">
+          <span>KDV (%8)</span>
+          <span id="taxDisplay">₺0</span>
+        </div>
+        <div class="total-row">
+          <span id="activetableLabel">Sipariş</span>
+          <span id="totalDisplay">₺0</span>
+        </div>
+        <div class="order-actions">
+          <button class="action-btn action-kitchen" id="kitchenBtn" disabled title="Mutfağa gönder">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 017 7c0 3.5-2 6.5-5 8v2H10v-2c-3-1.5-5-4.5-5-8a7 7 0 017-7z" stroke="currentColor" stroke-width="1.6"/><path d="M10 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Sipariş Al
+          </button>
+          <button class="action-btn action-receipt" id="receiptPreviewBtn" disabled title="Fişi göster">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.6"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Fiş Yazdır
+          </button>
+          <button class="action-btn action-pay" id="completeBtn" disabled title="Ödeme al">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.6"/></svg>
+            Ödeme Al
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- SATIŞ GEÇMİŞİ PANELİ -->
+  <div class="history-panel" id="historyPanel">
+    <div class="history-header">
+      <div class="history-title-row">
+        <h2 class="history-title">Satış Geçmişi</h2>
+        <button class="history-close-btn" id="historyCloseBtn" title="Kapat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="history-stats" id="historyStats"></div>
+    </div>
+    <div class="history-search-row">
+      <input type="text" class="history-search" id="historySearch" placeholder="Sipariş ID veya ürün ara…" />
+      <div class="history-actions" id="historyActions">
+        <button class="export-btn export-csv-btn" id="exportCsvBtn" title="CSV olarak dışa aktar">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CSV
+        </button>
+        <button class="export-btn export-excel-btn" id="exportExcelBtn" title="Excel olarak dışa aktar">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Excel
+        </button>
+        <!-- Sil butonu yalnızca admin için JS tarafından enjekte edilir -->
+      </div>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty" id="historyEmpty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="6" y="6" width="32" height="32" rx="5" stroke="currentColor" stroke-width="1.4" opacity="0.3"/>
+          <path d="M13 16h18M13 22h18M13 28h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+        <p>Henüz satış yok</p>
+        <span>Tamamlanan siparişler burada görünecek</span>
+      </div>
+    </div>
+  </div>
+  <div class="history-backdrop" id="historyBackdrop"></div>
+
+  <!-- ÖDEME MODALİ (İki Adım) -->
+  <div class="modal-overlay payment-overlay" id="paymentOverlay">
+    <div class="payment-modal">
+
+      <!-- ADIM 1: Ürün Seçimi -->
+      <div id="payStep1">
+        <div class="payment-header">
+          <h2 class="payment-title">Hangi Ürünler Ödeniyor?</h2>
+          <div class="payment-total-display" id="paymentTotalDisplay">₺0</div>
+        </div>
+        <div class="pay-items-list" id="payItemsList"></div>
+        <div class="pay-step1-footer">
+          <div class="pay-subtotals" id="paySubtotals"></div>
+          <div class="pay-step1-actions">
+            <button class="pay-select-all-btn" id="paySelectAllBtn">Tümünü Seç</button>
+          </div>
+          <div class="pay-step1-btn-stack">
+            <button class="pay-stack-btn pay-discount-btn" id="payDiscountBtn">İndirim Uygula</button>
+            <button class="pay-stack-btn pay-next-btn" id="payStep1NextBtn" disabled>Ödemeye Geç →</button>
+            <button class="pay-stack-btn pay-cancel-btn" id="paymentCancelBtn">İptal</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADIM 2: Ödeme Yöntemi -->
+      <div id="payStep2" style="display:none">
+        <div class="payment-header">
+          <h2 class="payment-title">Ödeme Yöntemi</h2>
+          <div class="payment-total-display" id="payStep2Total">₺0</div>
+        </div>
+
+        <div class="payment-methods">
+          <button class="payment-method-btn active" data-method="cash">
+            <span>Nakit</span>
+          </button>
+          <button class="payment-method-btn" data-method="card">
+            <span>Kredi Kartı</span>
+          </button>
+          <button class="payment-method-btn" data-method="split">
+            <span>Bölünmüş</span>
+          </button>
+        </div>
+
+        <div class="split-inputs" id="splitInputs" style="display:none">
+          <div class="split-field">
+            <label class="split-label">Nakit (₺)</label>
+            <input class="split-input" type="number" id="splitCash" min="0" placeholder="0" />
+          </div>
+          <div class="split-equals">+</div>
+          <div class="split-field">
+            <label class="split-label">Kart (₺)</label>
+            <input class="split-input" type="number" id="splitCard" min="0" placeholder="0" />
+          </div>
+        </div>
+        <p class="split-error" id="splitError"></p>
+
+        <button class="payment-confirm-btn" id="paymentConfirmBtn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 9l4.5 4.5L15 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Ödemeyi Tamamla
+        </button>
+        <button class="payment-cancel-btn pay-back-btn" id="payStep2BackBtn">← Geri Dön</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MUTFAK FİŞİ MODALİ -->
+  <div class="modal-overlay" id="kitchenOverlay">
+    <div class="kitchen-modal">
+      <div class="kitchen-header">
+        <div class="kitchen-title">MUTFAK SİPARİŞİ</div>
+        <div class="kitchen-table-name" id="kitchenTableName">Masa</div>
+        <div class="kitchen-time" id="kitchenTime"></div>
+      </div>
+      <div class="kitchen-divider">— — — — — — — — — — —</div>
+      <div class="kitchen-items" id="kitchenItems"></div>
+      <div class="kitchen-divider">— — — — — — — — — — —</div>
+      <button class="kitchen-close-btn" id="kitchenCloseBtn">Tamam</button>
+    </div>
+  </div>
+
+  <!-- FİŞ MODALİ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="receipt-modal">
+      <div class="receipt-header">
+        <div class="receipt-logo">
+          <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 18 Q10 10 14 12 Q18 14 20 10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2>Kahve</h2>
+        <p class="receipt-sub">Sipariş Fişi</p>
+        <p class="receipt-date" id="receiptDate"></p>
+        <p class="receipt-order-id" id="receiptOrderId"></p>
+      </div>
+      <div class="receipt-divider">
+        <span>— — — — — — — — — — —</span>
+      </div>
+      <div class="receipt-items" id="receiptItems"></div>
+      <div class="receipt-divider">
+        <span>— — — — — — — — — — —</span>
+      </div>
+      <div class="receipt-totals" id="receiptTotals"></div>
+      <div class="receipt-divider">
+        <span>— — — — — — — — — — —</span>
+      </div>
+      <p class="receipt-thanks">Teşekkürler! Tekrar bekleriz ☕</p>
+      <button class="new-order-btn" id="newOrderBtn">Yeni Sipariş</button>
+      <button class="new-order-btn" id="receiptOkBtn" style="display:none;background:var(--accent,#2563eb)">Tamam</button>
+    </div>
+  </div>
+
+  <!-- MASA SEÇİM EKRANI -->
+  <div class="table-screen" id="tableScreen" style="display:none">
+    <div class="table-screen-header">
+      <button class="back-to-tables-btn" id="tableScreenBackBtn" title="Ana Menü" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Geri Dön</span>
+      </button>
+      <div class="table-screen-actions">
+        <div class="time-display-table" id="timeDisplayTable"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnTable" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconTable">🌙</span>
+            </span>
+          </div>
+        </button>
+        <button class="history-toggle-btn" id="historyToggleBtnTable" title="Satış Geçmişi">
+          <svg width="14" height="14" viewBox="0 0 17 17" fill="none">
+            <rect x="2" y="2" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M5 6h7M5 8.5h7M5 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span>Geçmiş</span>
+        </button>
+        <button class="logout-btn" id="logoutBtnTable" title="Çıkış Yap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Çıkış</span>
+        </button>
+        <div class="active-user-chip" id="activeUserChipTable"></div>
+      </div>
+    </div>
+    <div class="table-screen-body">
+      <div class="table-zone">
+        <div class="table-zone-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          İç Salon
+        </div>
+        <div class="table-grid" id="tableGridInner"></div>
+      </div>
+      <div class="table-zone">
+        <div class="table-zone-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" stroke-width="1.6"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" stroke="currentColor" stroke-width="1.6"/></svg>
+          Dış Bahçe
+        </div>
+        <div class="table-grid" id="tableGridOuter"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÇIKIŞ ONAY MODALİ (native confirm() kullanılmaz — focus kaybını önler) -->
+  <div class="logout-confirm-overlay" id="logoutConfirmOverlay" style="display:none">
+    <div class="logout-confirm-box">
+      <p class="logout-confirm-msg">Çıkış yapmak istediğinize emin misiniz?</p>
+      <div class="logout-confirm-actions">
+        <button class="logout-confirm-yes" id="logoutConfirmYes">Çıkış Yap</button>
+        <button class="logout-confirm-no"  id="logoutConfirmNo">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN SEÇİM EKRANI -->
+  <div class="selection-screen" id="selectionScreen" style="display:none">
+    <div class="selection-header">
+      <div class="selection-logo">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 18 Q10 10 14 12 Q18 14 20 10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span>Kahve POS</span>
+      </div>
+      <div class="selection-header-actions">
+        <div class="time-display-table" id="timeDisplaySelection"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnSelection" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconSelection">🌙</span>
+            </span>
+          </div>
+        </button>
+        <button class="logout-btn" id="logoutBtnSelection" title="Çıkış Yap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Çıkış</span>
+        </button>
+        <div class="active-user-chip" id="activeUserChipSelection"></div>
+      </div>
+    </div>
+    <div class="selection-body">
+      <div class="selection-welcome">
+        <h1 class="selection-welcome-title">Hoş Geldiniz</h1>
+        <p class="selection-welcome-sub">Devam etmek için bir modül seçin</p>
+      </div>
+      <div class="selection-cards">
+        <button class="selection-card" id="selectionPOSBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="8" width="40" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 40h16M24 36v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 18h8M12 24h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <rect x="28" y="16" width="8" height="14" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">POS Sistemi</div>
+          <div class="selection-card-desc">Sipariş al, masaları yönet</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+        <button class="selection-card selection-card--analytics" id="selectionAnalyticsBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <path d="M8 38V28l8-6 8 4 8-14 8-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="16" cy="22" r="2.5" fill="currentColor"/>
+              <circle cx="24" cy="26" r="2.5" fill="currentColor"/>
+              <circle cx="32" cy="12" r="2.5" fill="currentColor"/>
+              <circle cx="40" cy="8" r="2.5" fill="currentColor"/>
+              <path d="M6 40h36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">Satış Grafikleri</div>
+          <div class="selection-card-desc">Analitik raporlar ve istatistikler</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+        <button class="selection-card selection-card--staff" id="selectionStaffBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <circle cx="18" cy="16" r="6" stroke="currentColor" stroke-width="2"/>
+              <path d="M6 38c0-6.627 5.373-10 12-10s12 3.373 12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="36" cy="14" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M28 36c0-5 3.5-8 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">Personel Yönetimi</div>
+          <div class="selection-card-desc">Çalışan hesaplarını görüntüle ve yönet</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+        <button class="selection-card selection-card--logs" id="selectionLogsBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="6" width="32" height="36" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M15 16h18M15 23h18M15 30h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="35" cy="35" r="7" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M32 35l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">İşlem Kayıtları</div>
+          <div class="selection-card-desc">Kullanıcı aktivitelerini ve işlem geçmişini görüntüle</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+        <button class="selection-card selection-card--productsales" id="selectionProductSalesBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="10" width="40" height="30" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 18h40" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M14 26h4M22 26h12M14 32h4M22 32h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="38" cy="10" r="6" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M38 7v3l2 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">Ürün Satış Verileri</div>
+          <div class="selection-card-desc">Her ürünün satış adedi ve ciro detayları</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+        <button class="selection-card selection-card--inventory" id="selectionInventoryBtn">
+          <div class="selection-card-icon">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="8" width="36" height="32" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 18h20M14 25h20M14 32h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <rect x="30" y="28" width="12" height="12" rx="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M33 34h6M36 31v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="selection-card-title">Stok Yönetimi</div>
+          <div class="selection-card-desc">Envanter takibi ve stok güncelleme</div>
+          <div class="selection-card-arrow">→</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALİTİK DASHBOARD -->
+  <div class="analytics-screen" id="analyticsScreen" style="display:none">
+    <div class="analytics-topbar">
+      <div class="analytics-topbar-left">
+        <button class="analytics-back-btn" id="analyticsBackBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Geri Dön</span>
+        </button>
+        <h1 class="analytics-title">Satış Grafikleri</h1>
+      </div>
+      <div class="analytics-topbar-right">
+        <div class="time-display" id="timeDisplayAnalytics"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnAnalytics" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconAnalytics">🌙</span>
+            </span>
+          </div>
+        </button>
+        <div class="active-user-chip" id="activeUserChipAnalytics"></div>
+      </div>
+    </div>
+
+    <div class="analytics-body">
+      <div class="analytics-period-bar">
+        <div class="period-btn-group" id="periodBtnGroup">
+          <button class="period-btn active" data-period="daily">Günlük</button>
+          <button class="period-btn" data-period="weekly">Haftalık</button>
+          <button class="period-btn" data-period="monthly">Aylık</button>
+          <button class="period-btn" data-period="yearly">Yıllık</button>
+          <button class="period-btn" data-period="alltime">Tüm Zamanlar</button>
+        </div>
+        <div class="analytics-filter-group">
+          <input type="month" class="day-filter-input" id="analyticsMonthFilter" title="Belirli bir ay seçin">
+          <span class="ps-filter-sep">|</span>
+          <input type="date" class="day-filter-input" id="analyticsDayFilter" title="Belirli bir gün seçin">
+          <button class="today-btn" id="analyticsTodayBtn">Bugün</button>
+          <span class="ps-filter-sep">|</span>
+          <div class="relative-filter-wrap" id="analyticsRelativeWrap">
+            <span class="relative-filter-label">Son</span>
+            <input type="number" class="relative-filter-n" id="analyticsRelativeNInput" min="1" max="999" placeholder="…">
+            <select class="relative-filter-unit" id="analyticsRelativeUnitSelect">
+              <option value="gün">Gün</option>
+              <option value="hafta">Hafta</option>
+              <option value="ay">Ay</option>
+              <option value="yıl">Yıl</option>
+            </select>
+            <button class="relative-filter-btn" id="analyticsRelativeApply">Uygula</button>
+          </div>
+          <button class="pdf-export-btn" id="exportPdfBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+            PDF İndir
+          </button>
+          <button class="mock-data-btn" id="analyticsMockBtn" title="Stres testi için mock veri oluştur / temizle">🧪</button>
+        </div>
+      </div>
+
+      <div class="analytics-stats-row" id="analyticsStatsRow"></div>
+
+      <div class="analytics-charts-grid">
+        <div class="analytics-chart-card analytics-chart-card--revenue">
+          <div class="analytics-chart-header">
+            <span class="analytics-chart-title">Gelir Grafiği</span>
+          </div>
+          <div class="analytics-revenue-layout">
+            <div class="analytics-revenue-yaxis-wrap">
+              <canvas id="revenueYAxisChart"></canvas>
+            </div>
+            <div class="analytics-revenue-scroll-wrap">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="analytics-chart-card analytics-chart-card--top">
+          <div class="analytics-chart-header">
+            <span class="analytics-chart-title">En Çok Satanlar</span>
+            <span class="analytics-chart-sub">İlk 5 ürün (adet)</span>
+          </div>
+          <div class="analytics-chart-wrapper analytics-chart-wrapper--donut" id="topSellersChartWrapper">
+            <canvas id="topSellersChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-chart-card analytics-chart-card--low">
+        <div class="analytics-chart-header">
+          <span class="analytics-chart-title">Az Satanlar</span>
+          <span class="analytics-chart-sub">En düşük satış performansı</span>
+        </div>
+        <div id="lowPerformersList" class="performers-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONEL YÖNETİMİ EKRANI -->
+  <div class="staff-screen" id="staffScreen" style="display:none">
+    <div class="analytics-topbar">
+      <div class="analytics-topbar-left">
+        <button class="analytics-back-btn" id="staffBackBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Geri Dön</span>
+        </button>
+        <h1 class="analytics-title">Personel Yönetimi</h1>
+      </div>
+      <div class="analytics-topbar-right">
+        <div class="time-display" id="timeDisplayStaff"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnStaff" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconStaff">🌙</span>
+            </span>
+          </div>
+        </button>
+        <div class="active-user-chip" id="activeUserChipStaff"></div>
+      </div>
+    </div>
+
+    <div class="staff-body">
+      <div class="staff-toolbar">
+        <div class="staff-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="staff-search-icon"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" class="staff-search" id="staffSearch" placeholder="Kullanıcı adı ara…" autocomplete="off" />
+        </div>
+        <button class="staff-add-btn" id="addStaffBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Yeni Personel Ekle
+        </button>
+      </div>
+
+      <div class="staff-table-wrapper">
+        <table class="staff-table">
+          <thead>
+            <tr>
+              <th class="col-id">#</th>
+              <th class="col-username">Kullanıcı Adı</th>
+              <th class="col-role">Rol</th>
+              <th class="col-password">Şifre</th>
+              <th class="col-actions">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <tr class="staff-empty-row" id="staffEmptyRow">
+              <td colspan="5">
+                <div class="staff-empty">
+                  <svg width="36" height="36" viewBox="0 0 48 48" fill="none"><circle cx="18" cy="16" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><path d="M6 38c0-6.627 5.373-10 12-10s12 3.373 12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/></svg>
+                  <p>Personel bulunamadı</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONEL EKLE / DÜZENLE MODALİ -->
+  <div class="staff-modal-overlay" id="staffModalOverlay" style="display:none">
+    <div class="staff-modal-box">
+      <div class="staff-modal-header">
+        <h2 class="staff-modal-title" id="staffModalTitle">Yeni Personel Ekle</h2>
+        <button class="staff-modal-close" id="staffModalCloseBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="staff-modal-fields">
+        <div class="staff-modal-field">
+          <label class="staff-modal-label" for="staffModalUsername">Kullanıcı Adı</label>
+          <input class="staff-modal-input" type="text" id="staffModalUsername" autocomplete="off" placeholder="örn. Ahmet" />
+        </div>
+        <div class="staff-modal-field">
+          <label class="staff-modal-label" for="staffModalPassword">Şifre</label>
+          <div class="staff-modal-pass-wrap">
+            <input class="staff-modal-input" type="text" id="staffModalPassword" autocomplete="off" placeholder="Şifre girin" />
+          </div>
+        </div>
+        <div class="staff-modal-field">
+          <label class="staff-modal-label" for="staffModalRole">Rol</label>
+          <select class="staff-modal-select" id="staffModalRole">
+            <option value="staff">Çalışan</option>
+            <option value="admin">Yönetici</option>
+          </select>
+        </div>
+      </div>
+      <p class="staff-modal-error" id="staffModalError"></p>
+      <div class="staff-modal-actions">
+        <button class="staff-modal-save" id="staffModalSaveBtn">Kaydet</button>
+        <button class="staff-modal-cancel" id="staffModalCancelBtn">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- İŞLEM KAYITLARI EKRANI -->
+  <div class="logs-screen" id="logsScreen" style="display:none">
+    <div class="analytics-topbar">
+      <div class="analytics-topbar-left">
+        <button class="analytics-back-btn" id="logsBackBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Geri Dön</span>
+        </button>
+        <h1 class="analytics-title">İşlem Kayıtları</h1>
+      </div>
+      <div class="analytics-topbar-right">
+        <div class="time-display" id="timeDisplayLogs"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnLogs" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconLogs">🌙</span>
+            </span>
+          </div>
+        </button>
+        <div class="active-user-chip" id="activeUserChipLogs"></div>
+      </div>
+    </div>
+
+    <div class="logs-body">
+      <div class="logs-toolbar">
+        <div class="logs-toolbar-row">
+          <div class="logs-search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="logs-search-icon"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input type="text" class="logs-search" id="logsSearch" placeholder="Kullanıcı, işlem türü, tarih veya saat ara… (ör: 06.04.2026, 12:22)" autocomplete="off" />
+          </div>
+          <button class="logs-clear-btn" id="clearAllLogsBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Tüm Kayıtları Temizle
+          </button>
+        </div>
+      </div>
+
+      <div class="logs-table-wrapper">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th class="col-log-time">Zaman</th>
+              <th class="col-log-user">Kullanıcı</th>
+              <th class="col-log-type">İşlem Türü</th>
+              <th class="col-log-desc">Açıklama</th>
+              <th class="col-log-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÜRÜN SATIŞ VERİLERİ EKRANI -->
+  <div class="product-sales-screen" id="productSalesScreen" style="display:none">
+    <div class="analytics-topbar">
+      <div class="analytics-topbar-left">
+        <button class="analytics-back-btn" id="productSalesBackBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Geri Dön</span>
+        </button>
+        <h1 class="analytics-title">Ürün Satış Verileri</h1>
+      </div>
+      <div class="analytics-topbar-right">
+        <div class="time-display" id="timeDisplayProductSales"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnProductSales" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconProductSales">🌙</span>
+            </span>
+          </div>
+        </button>
+        <div class="active-user-chip" id="activeUserChipProductSales"></div>
+      </div>
+    </div>
+
+    <div class="product-sales-body">
+      <div class="product-sales-period-bar">
+        <div class="period-btn-group" id="productSalesPeriodBtnGroup">
+          <button class="period-btn active" data-period="daily">Günlük</button>
+          <button class="period-btn" data-period="weekly">Haftalık</button>
+          <button class="period-btn" data-period="monthly">Aylık</button>
+          <button class="period-btn" data-period="yearly">Yıllık</button>
+          <button class="period-btn" data-period="alltime">Tüm Zamanlar</button>
+        </div>
+        <div class="product-sales-filter-group">
+          <input type="month" class="day-filter-input" id="productSalesMonthFilter" title="Belirli bir ay seçin">
+          <span class="ps-filter-sep">|</span>
+          <input type="date" class="day-filter-input" id="productSalesDayFilter" title="Belirli bir gün seçin">
+          <button class="today-btn" id="productSalesTodayBtn">Bugün</button>
+          <span class="ps-filter-sep">|</span>
+          <div class="relative-filter-wrap" id="productSalesRelativeWrap">
+            <span class="relative-filter-label">Son</span>
+            <input type="number" class="relative-filter-n" id="productSalesRelativeNInput" min="1" max="999" placeholder="…">
+            <select class="relative-filter-unit" id="productSalesRelativeUnitSelect">
+              <option value="gün">Gün</option>
+              <option value="hafta">Hafta</option>
+              <option value="ay">Ay</option>
+              <option value="yıl">Yıl</option>
+            </select>
+            <button class="relative-filter-btn" id="productSalesRelativeApply">Uygula</button>
+          </div>
+          <button class="pdf-export-btn" id="exportProductSalesPdfBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+            PDF İndir
+          </button>
+          <button class="mock-data-btn" id="productSalesMockBtn" title="Stres testi için mock veri oluştur / temizle">🧪</button>
+        </div>
+      </div>
+
+      <div class="product-sales-toolbar">
+        <div class="ps-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="ps-search-icon"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" class="ps-search" id="productSalesSearch" placeholder="Ürün adı ara… (ör: Muffin, Ekstra Shot)" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="ps-summary" id="productSalesSummary"></div>
+
+      <div class="product-sales-table-wrapper">
+        <table class="product-sales-table">
+          <thead>
+            <tr>
+              <th class="col-ps-num">#</th>
+              <th class="col-ps-name">Ürün Adı</th>
+              <th class="col-ps-cat">Kategori</th>
+              <th class="col-ps-qty ps-sortable" id="productSalesQtySort">
+                Satış Adedi
+                <span class="ps-sort-icon" id="productSalesSortIcon">↓</span>
+              </th>
+              <th class="col-ps-price">Birim Fiyat</th>
+              <th class="col-ps-revenue">Toplam Ciro</th>
+            </tr>
+          </thead>
+          <tbody id="productSalesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GİRİŞ EKRANI -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="48" height="48" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 18 Q10 10 14 12 Q18 14 20 10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M11 20 Q13 16 14 18 Q15 20 17 18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+        <h1 class="login-title">Kahve POS</h1>
+        <p class="login-subtitle" id="loginSubtitle">Giriş türünü seçin</p>
+      </div>
+
+      <!-- Giriş türü seçimi -->
+      <div class="login-type-select" id="loginTypeSelect">
+        <button class="login-type-btn" id="btnAdminLogin">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          <span>Yönetici Girişi</span>
+        </button>
+        <button class="login-type-btn login-type-staff" id="btnStaffLogin">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span>Çalışan Girişi</span>
+        </button>
+      </div>
+
+      <!-- Giriş formu (başta gizli) -->
+      <div class="login-form" id="loginForm" style="display:none">
+        <div class="login-role-badge" id="loginRoleBadge"></div>
+        <div class="login-field">
+          <label class="login-label" for="loginUsername">Kullanıcı Adı</label>
+          <input class="login-input" type="text" id="loginUsername" autocomplete="username" />
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="loginPassword">Şifre</label>
+          <input class="login-input" type="password" id="loginPassword" autocomplete="current-password" />
+        </div>
+        <p class="login-error" id="loginError"></p>
+        <button class="login-btn" id="loginBtn">Giriş Yap</button>
+        <button class="login-back-btn" id="loginBackBtn">← Geri Dön</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- İNDİRİM MODALİ -->
+  <div class="discount-overlay" id="discountOverlay" style="display:none">
+    <div class="discount-box">
+      <div class="discount-title">İndirim Uygula</div>
+      <div class="discount-fields">
+        <div class="discount-field">
+          <span class="discount-field-label">Yüzde (%)</span>
+          <div class="discount-input-row">
+            <span class="discount-prefix">%</span>
+            <input class="discount-input" type="number" id="discountPctValue" min="0" max="100" placeholder="0" />
+          </div>
+        </div>
+        <div class="discount-field-sep">veya</div>
+        <div class="discount-field">
+          <span class="discount-field-label">Tutar (₺)</span>
+          <div class="discount-input-row">
+            <span class="discount-prefix">₺</span>
+            <input class="discount-input" type="number" id="discountFixedValue" min="0" placeholder="0" />
+          </div>
+        </div>
+      </div>
+      <p class="discount-error" id="discountError"></p>
+      <div class="discount-actions">
+        <button class="discount-apply-btn" id="discountApplyBtn">Uygula</button>
+        <button class="discount-cancel-btn" id="discountCancelBtn">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOK YÖNETİMİ EKRANI -->
+  <div class="inventory-screen" id="inventoryScreen" style="display:none">
+    <div class="analytics-topbar">
+      <div class="analytics-topbar-left">
+        <button class="analytics-back-btn" id="inventoryBackBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Geri Dön</span>
+        </button>
+        <h1 class="analytics-title">Stok Yönetimi</h1>
+      </div>
+      <div class="analytics-topbar-right">
+        <div class="time-display" id="timeDisplayInventory"></div>
+        <button class="theme-toggle-btn" id="themeToggleBtnInventory" title="Tema değiştir">
+          <div class="theme-pill">
+            <span class="theme-pill-handle">
+              <span class="theme-pill-icon" id="themeToggleIconInventory">🌙</span>
+            </span>
+          </div>
+        </button>
+        <div class="active-user-chip" id="activeUserChipInventory"></div>
+      </div>
+    </div>
+
+    <div class="inventory-body">
+      <div class="inventory-toolbar">
+        <div class="inv-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="inv-search-icon"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" class="inv-search" id="invSearch" placeholder="Ürün veya kategori ara…" autocomplete="off" />
+        </div>
+        <div class="inv-add-wrap">
+          <button class="inv-add-btn" id="invAddNewBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Stok Ekle
+          </button>
+        </div>
+      </div>
+
+      <div class="inv-kpi-row" id="invKpiRow">
+        <div class="inv-kpi-card">
+          <div class="inv-kpi-label">Toplam Ürün</div>
+          <div class="inv-kpi-value" id="invKpiTotal">—</div>
+        </div>
+        <div class="inv-kpi-card inv-kpi-card--ok">
+          <div class="inv-kpi-label">Stokta</div>
+          <div class="inv-kpi-value" id="invKpiOk">—</div>
+        </div>
+        <div class="inv-kpi-card inv-kpi-card--low">
+          <div class="inv-kpi-label">Az Kaldı</div>
+          <div class="inv-kpi-value" id="invKpiLow">—</div>
+        </div>
+        <div class="inv-kpi-card inv-kpi-card--out">
+          <div class="inv-kpi-label">Tükendi</div>
+          <div class="inv-kpi-value" id="invKpiOut">—</div>
+        </div>
+      </div>
+
+      <div class="inv-table-wrapper">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th class="col-inv-num">#</th>
+              <th class="col-inv-name">Ürün Adı</th>
+              <th class="col-inv-stock">Mevcut Stok</th>
+              <th class="col-inv-status">Durum</th>
+              <th class="col-inv-cat">Kategori</th>
+              <th class="col-inv-actions">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOK GÜNCELLE MODALİ -->
+  <div class="inv-modal-overlay" id="invModalOverlay" style="display:none">
+    <div class="inv-modal-box">
+      <div class="inv-modal-header">
+        <h2 class="inv-modal-title" id="invModalTitle">Stok Güncelle</h2>
+        <button class="inv-modal-close" id="invModalCloseBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="inv-modal-fields">
+        <div class="inv-modal-field" id="invModalNameRow" style="display:none">
+          <label class="inv-modal-label" for="invModalNameInput">Ürün Adı</label>
+          <input class="inv-modal-input" type="text" id="invModalNameInput" placeholder="örn. Turta" />
+        </div>
+        <div class="inv-modal-field" id="invModalCatRow" style="display:none">
+          <label class="inv-modal-label" for="invModalCatInput">Kategori</label>
+          <input class="inv-modal-input" type="text" id="invModalCatInput" placeholder="örn. dessert" />
+        </div>
+        <div class="inv-modal-field">
+          <label class="inv-modal-label" for="invModalQty" id="invModalQtyLabel">Mevcut Stok (Kesin Değer)</label>
+          <input class="inv-modal-input" type="number" id="invModalQty" min="0" placeholder="0" />
+        </div>
+        <div class="inv-modal-field" id="invModalMinRow">
+          <label class="inv-modal-label" for="invModalMin">Min. Stok Seviyesi (Uyarı)</label>
+          <input class="inv-modal-input" type="number" id="invModalMin" min="0" placeholder="5" />
+        </div>
+      </div>
+      <p class="inv-modal-error" id="invModalError"></p>
+      <div class="inv-modal-actions">
+        <button class="inv-modal-save" id="invModalSaveBtn">Kaydet</button>
+        <button class="inv-modal-cancel" id="invModalCancelBtn">İptal</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
